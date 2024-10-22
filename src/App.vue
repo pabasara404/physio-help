@@ -13,9 +13,11 @@ const themeOverrides = {
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="themeOverrides">
-    <AppLayout />
-  </n-config-provider>
+    <n-config-provider :theme-overrides="themeOverrides">
+      <n-message-provider>
+        <router-view />
+      </n-message-provider>
+    </n-config-provider>
 </template>
 
 <style scoped>

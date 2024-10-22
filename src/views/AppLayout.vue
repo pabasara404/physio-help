@@ -70,7 +70,7 @@
         </n-layout-sider>
         <n-layout-content class="h-[calc(100vh-49px-16px)]">
           <!-- Show Component Relevant to the menu options -->
-          <router-view />
+            <router-view />
         </n-layout-content>
       </n-layout>
       <n-layout-footer bordered align="center" class="h-6">
@@ -89,6 +89,9 @@ import { PlusSquare as PlusSquareIcon } from "@vicons/fa";
 import { Fall as FallIcon, Logout as LogoutIcon } from "@vicons/tabler";
 import { SnowshoeingRound as SnowshoeingRoundIcon } from "@vicons/material";
 import { UserAvatar as UserAvatarIcon } from "@vicons/carbon";
+import { useMessage } from 'naive-ui'
+
+const message = useMessage();
 
 const router = useRouter();
 const collapsed = ref(false);
@@ -102,7 +105,7 @@ const menuOptions = [
     label: () => h(
         RouterLink,
         { to: { name: "exercise" } },
-        { default: () => "Exercise Analytics" }
+        { default: () => "Early Post-operative Exercises" }
     ),
     key: "exercise",
     icon: renderIcon(SnowshoeingRoundIcon),
