@@ -6,42 +6,63 @@
     <p>Start the exercises as soon as you are able. You can begin them in the recovery room shortly after surgery. You may feel uncomfortable at first, but these exercises will help speed your recovery and actually diminish your post-operative pain.</p></div>
   <div class="flex justify-evenly flex-wrap px-20">
     <n-card
-        @click="handleCardClick('timberCuttingApplication')"
-        title="Apply to a Timber Cutting Permit"
+        @click="handleCardClick('quadricepsSet')"
+        title="Quadriceps set"
         hoverable
         class="my-6"
     >
       <div class="flex justify-center">
         <img
-            width="125"
-            src="../../.././images/Timber%20cutting%20permit%20req4.jpeg"
+            src=".././assets/Quadriceps%20set.jpg"
         />
       </div>
     </n-card>
     <n-card
         class="my-6"
-        @click="handleCardClick('timberCuttingPermitStatus')" title="View Timber Cutting Permit Status" hoverable>
+        @click="handleCardClick('straightLegRaises')" title="Straight Leg Raises" hoverable>
       <div class="flex justify-center ">
         <img
-            width="125"
-            src="../../.././images/application status tracking black and white simple clipart.jpeg"
+            src=".././assets/Straight%20Leg%20Raises.jpg"
         />
       </div>
     </n-card>
     <n-card
         class="my-6"
-        @click="handleCardClick('timberCuttingReviewApplication')" title="Review the Applications" hoverable>
+        @click="handleCardClick('anklePumps')" title="Ankle Pumps" hoverable>
       <div class="flex justify-center ">
-        <img width="125" src="../../.././images/review.jpeg" />
+        <img  src=".././assets/Ankle%20Pumps.jpg" />
       </div>
     </n-card>
     <n-card
         class="my-6"
-        @click="handleCardClick('timberCuttingIssuePermits')" title="Issue Permits" hoverable>
+        @click="handleCardClick('kneeStraighteningExercise')" title="Knee straightening exercise" hoverable>
       <div class="flex justify-center ">
         <img
-            width="125"
-            src="../../.././images/issue.jpeg"
+            src=".././assets/Knee%20straightening%20exercise.jpg"
+        />
+      </div>
+    </n-card><n-card
+        class="my-6"
+        @click="handleCardClick('bedSupportedKneeBends')" title="Bed-Supported Knee Bends" hoverable>
+      <div class="flex justify-center ">
+        <img
+            src=".././assets/Bed-Supported%20Knee%20Bends.jpg"
+        />
+      </div>
+    </n-card><n-card
+        class="my-6"
+        @click="handleCardClick('sittingSupportedKneeBends')" title="Sitting Supported Knee Bends" hoverable>
+      <div class="flex justify-center ">
+        <img
+            src=".././assets/Sitting%20Supported%20Knee%20Bends.jpg"
+        />
+      </div>
+    </n-card><n-card
+        class="my-6"
+        @click="handleCardClick('sittingUnsupportedKneeBends')" title="Sitting Unsupported Knee Bends" hoverable>
+      <div class="flex justify-center ">
+        <img
+            src=".././assets/Sitting%20Unsupported%20Knee%20Bends.jpg"
         />
       </div>
     </n-card>
@@ -51,6 +72,7 @@
 <script setup>
 
 import PageHeader from "@/components/PageHeader.vue";
+import {useRouter} from "vue-router";
 
 const router = useRouter();
 
@@ -61,5 +83,7 @@ const handleCardClick = (route) => {
 </script>
 
 <style scoped>
-
+.n-card {
+  max-width: 350px;
+}
 </style>

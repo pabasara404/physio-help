@@ -43,6 +43,41 @@ const router = createRouter({
           name: "fallDetection",
           meta: { title: `FallDetection` },
           component: () => import(`../components/FallDetection.vue`),
+        },{
+          path: "/quadricepsSet",
+          name: "quadricepsSet",
+          meta: { title: `Quadriceps set` },
+          component: () => import(`../components/QuadricepsSet.vue`),
+        },{
+          path: "/straightLegRaises",
+          name: "straightLegRaises",
+          meta: { title: `Straight Leg Raises` },
+          component: () => import(`../components/StraightLegRaises.vue`),
+        },{
+          path: "/anklePumps",
+          name: "anklePumps",
+          meta: { title: `Ankle Pumps` },
+          component: () => import(`../components/AnklePumps.vue`),
+        },{
+          path: "/kneeStraighteningExercise",
+          name: "kneeStraighteningExercise",
+          meta: { title: `Knee straightening exercise` },
+          component: () => import(`../components/KneeStraighteningExercise.vue`),
+        },{
+          path: "/bedSupportedKneeBends",
+          name: "bedSupportedKneeBends",
+          meta: { title: `Bed-Supported Knee Bends` },
+          component: () => import(`../components/BedSupportedKneeBends.vue`),
+        },{
+          path: "/sittingSupportedKneeBends",
+          name: "sittingSupportedKneeBends",
+          meta: { title: `Sitting Supported Knee Bends` },
+          component: () => import(`../components/SittingSupportedKneeBends.vue`),
+        },{
+          path: "/sittingUnsupportedKneeBends",
+          name: "sittingUnsupportedKneeBends",
+          meta: { title: `Sitting Unsupported Knee Bends` },
+          component: () => import(`../components/SittingUnsupportedKneeBends.vue`),
         },
       ]
     },
