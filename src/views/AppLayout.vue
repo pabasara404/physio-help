@@ -105,7 +105,7 @@ const menuOptions = [
     label: () => h(
         RouterLink,
         { to: { name: "exercise" } },
-        { default: () => "Early Post-operative Exercises" }
+        { default: () => "Early Post-Op Exercises" }
     ),
     key: "exercise",
     icon: renderIcon(SnowshoeingRoundIcon),

@@ -1,8 +1,12 @@
 <template>
-  <n-page-header class="px-4">
-    <template #title>{{ pageTitle }} </template>
-    <template #header>
+  <n-page-header class="px-3">
+    <template #title>
+      <n-button v-if="pageTitle !== 'Foot Insole Settings' && pageTitle !== 'Early Post-operative Exercises' && pageTitle !== 'Fall Detection Analysis'" strong secondary circle class="mx-2" @click="goBack">
+        <n-icon><ArrowBackOutlinedIcon/></n-icon>
+      </n-button>
+      {{ pageTitle }}
     </template>
+    <template #header></template>
     <n-divider />
     <template #extra v-if="pageTitle === 'Foot Insole Settings'">
       <n-space>
@@ -25,12 +29,11 @@
 </template>
 
 <script setup>
-import {computed, defineComponent} from "vue";
-import {NIcon, useMessage} from "naive-ui";
-import {PowerOffOutlined as PowerOffOutlinedIcon,
-        PowerOutlined as PowerOutlinedIcon }  from "@vicons/material";
+import { computed } from 'vue';
+import { useRouter } from 'vue-router'; // Import the useRouter hook
+import { PowerOffOutlined as PowerOffOutlinedIcon, PowerOutlined as PowerOutlinedIcon, ArrowBackOutlined as ArrowBackOutlinedIcon } from '@vicons/material';
 
-const message = useMessage();
+const router = useRouter(); // Get the router instance
 
 const propsData = defineProps({
   title: String,
@@ -38,4 +41,8 @@ const propsData = defineProps({
 
 const pageTitle = computed(() => propsData.title);
 
+// Function to go back to the previous route
+const goBack = () => {
+  router.back();
+};
 </script>
