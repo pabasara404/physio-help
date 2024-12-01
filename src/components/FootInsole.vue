@@ -6,8 +6,8 @@
     </div>
     <div class="basis-1/2">
       <div class="flex flex-col ...">
-        <div class="m-2"><iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe></div>
-        <div class="m-2"><iframe width="440" height="250" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/4"></iframe></div>
+        <div class="m-2"><iframe width="440" height="240" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/1?bgcolor=%23ffffff&color=%23d62020&days=1&dynamic=true&results=60&type=line"></iframe></div>
+        <div class="m-2"><iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/3?days=1&dynamic=&results=60&type="></iframe></div>
       </div>
     </div>
   </div>
@@ -32,12 +32,12 @@ const getColorForPressure = (pressure) => {
   // Normalize negative values to 0
   const normalizedPressure = Math.max(0, pressure);
 
-  if (normalizedPressure < 47.6) {
-    return '#00FF00'; // Green for low pressure
-  } else if (normalizedPressure < 48) {
-    return '#FFA500'; // Orange for medium pressure
+  if (normalizedPressure <= 47.69) {
+    return '#4CAF50'; // Green for low weight
+  } else if (normalizedPressure > 47.69 && normalizedPressure < 48) {
+    return '#FF9800'; // Orange for medium weight
   } else {
-    return '#FF0000'; // Red for high pressure
+    return '#E53935'; // Red for high weight
   }
 };
 

@@ -35,6 +35,7 @@
       </div>
 
       <div v-else-if="currentPhase === 'exercise'" class="space-y-4">
+        <div class="m-2 flex justify-center"><iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/1?bgcolor=%23ffffff&color=%23d62020&days=1&dynamic=true&results=60&type=line"></iframe></div>
         <n-ol>
           <n-li>Tighten your thigh muscle.</n-li>
           <n-li>Try to straighten your knee. Hold for 5 to 10 seconds.</n-li>
