@@ -1,17 +1,6 @@
-<template>
-  <div class="chart-container">
-    <Chart
-        type="line"
-        :data="chartData"
-        :options="chartOptions"
-        :height="300"
-    />
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue';
-import {Chart} from 'vue-chartjs';
+import { Chart } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -20,7 +9,7 @@ import {
   LineElement,
   LinearScale,
   PointElement,
-  CategoryScale
+  CategoryScale,
 } from 'chart.js';
 
 // Register ChartJS components
@@ -37,30 +26,38 @@ ChartJS.register(
 // Props definition
 const props = defineProps({
   data: {
-    type: Array,
-    required: true
+    type: Object, // Updated to accept object with datasets
+    required: true,
   },
   title: {
     type: String,
-    default: 'Real-Time Chart'
+    default: 'Real-Time Chart',
   },
-  dataKey: {
-    type: String,
-    default: 'value'
-  }
 });
 
 // Prepare chart data
 const chartData = computed(() => ({
-  labels: props.data.map(item => item.time),
+  labels: props.data.x.map((item) => item.time),
   datasets: [
     {
-      label: props.title,
-      data: props.data.map(item => item.value),
+      label: `${props.title} - X`,
+      data: props.data.x.map((item) => item.value),
       borderColor: '#8884d8',
-      tension: 0.1
-    }
-  ]
+      tension: 0.1,
+    },
+    {
+      label: `${props.title} - Y`,
+      data: props.data.y.map((item) => item.value),
+      borderColor: '#82ca9d',
+      tension: 0.1,
+    },
+    {
+      label: `${props.title} - Z`,
+      data: props.data.z.map((item) => item.value),
+      borderColor: '#ff7300',
+      tension: 0.1,
+    },
+  ],
 }));
 
 // Chart options
@@ -69,11 +66,22 @@ const chartOptions = {
   maintainAspectRatio: false,
   scales: {
     y: {
-      beginAtZero: true
-    }
-  }
+      beginAtZero: true,
+    },
+  },
 };
 </script>
+
+<template>
+  <div class="chart-container">
+    <Chart
+        type="line"
+        :data="chartData"
+        :options="chartOptions"
+        :height="300"
+    />
+  </div>
+</template>
 
 <style scoped>
 .chart-container {

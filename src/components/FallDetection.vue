@@ -34,7 +34,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import mqtt from 'mqtt';
@@ -54,27 +53,40 @@ const thingspeakCharts = [
 // Refs for sensor data and chart data
 const sensor1Data = ref('');
 const sensor2Data = ref('');
-const sensor1ChartData = ref([]);
-const sensor2ChartData = ref([]);
+const sensor1ChartData = ref({
+  x: [],
+  y: [],
+  z: [],
+});
+const sensor2ChartData = ref({
+  x: [],
+  y: [],
+  z: [],
+});
 
 // MQTT client setup
 const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 
 // Function to add new data point to chart
-const addDataPoint = (chartData, newValue) => {
-  const currentTime = new Date();
-  const newDataPoint = {
-    time: currentTime.toLocaleTimeString(),
-    value: parseFloat(newValue)  // Extracted value (accel.x or other)
+const addDataPoint = (chartData, newValues) => {
+  const currentTime = new Date().toLocaleTimeString();
+
+  const newPoint = {
+    time: currentTime,
+    x: parseFloat(newValues.x),
+    y: parseFloat(newValues.y),
+    z: parseFloat(newValues.z),
   };
 
-  // Add new data point
-  chartData.value.push(newDataPoint);
+  // Add new data points for each axis
+  chartData.x.push({ time: newPoint.time, value: newPoint.x });
+  chartData.y.push({ time: newPoint.time, value: newPoint.y });
+  chartData.z.push({ time: newPoint.time, value: newPoint.z });
 
   // Trim data to MAX_DATA_POINTS
-  if (chartData.value.length > MAX_DATA_POINTS) {
-    chartData.value.shift();
-  }
+  if (chartData.x.length > MAX_DATA_POINTS) chartData.x.shift();
+  if (chartData.y.length > MAX_DATA_POINTS) chartData.y.shift();
+  if (chartData.z.length > MAX_DATA_POINTS) chartData.z.shift();
 };
 
 onMounted(() => {
@@ -105,10 +117,10 @@ onMounted(() => {
 
     if (topic === "esp32/mpu1") {
       sensor1Data.value = data;
-      addDataPoint(sensor1ChartData, data.accel.x);  // Extracting x acceleration for plotting
+      addDataPoint(sensor1ChartData.value, data.accel);
     } else if (topic === "esp32/mpu2") {
       sensor2Data.value = data;
-      addDataPoint(sensor2ChartData, data.accel.x);  // Extracting x acceleration for plotting
+      addDataPoint(sensor2ChartData.value, data.accel);
     }
   });
 });
