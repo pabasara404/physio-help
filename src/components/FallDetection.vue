@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import mqtt from 'mqtt';
 import PageHeader from "@/components/PageHeader.vue";
 import RealTimeChart from '@/components/RealTimeChart.vue';
@@ -60,13 +60,12 @@ const sensor2ChartData = ref([]);
 // MQTT client setup
 const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 
-
 // Function to add new data point to chart
 const addDataPoint = (chartData, newValue) => {
   const currentTime = new Date();
   const newDataPoint = {
     time: currentTime.toLocaleTimeString(),
-    value: parseFloat(newValue)
+    value: parseFloat(newValue)  // Extracted value (accel.x or other)
   };
 
   // Add new data point
@@ -102,14 +101,14 @@ onMounted(() => {
 
   // Listen for messages on the subscribed topics
   client.on("message", (topic, message) => {
-    const data = message.toString();
+    const data = JSON.parse(message.toString());
 
     if (topic === "esp32/mpu1") {
       sensor1Data.value = data;
-      addDataPoint(sensor1ChartData, data);
+      addDataPoint(sensor1ChartData, data.accel.x);  // Extracting x acceleration for plotting
     } else if (topic === "esp32/mpu2") {
       sensor2Data.value = data;
-      addDataPoint(sensor2ChartData, data);
+      addDataPoint(sensor2ChartData, data.accel.x);  // Extracting x acceleration for plotting
     }
   });
 });
