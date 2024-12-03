@@ -10,9 +10,13 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "chart.js": "^4.4.5",
+    "@vitejs/plugin-vue-jsx": "^4.1.1",
+    "@vue/reactivity": "^3.5.13",
+    "chart.js": "^4.4.7",
     "mqtt": "^5.10.3",
+    "recharts": "^2.14.1",
     "vue": "^3.5.12",
+    "vue-chartjs": "^5.3.2",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
