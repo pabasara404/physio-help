@@ -4,43 +4,32 @@
     <div class="basis-1/2">
       <canvas class="m-1" id="footCanvas"></canvas>
     </div>
-    <div class="basis-1/2">
-      <div class="flex flex-col ...">
-        <div class="flex space-x-4">
-          <!-- Acceleration Charts -->
-          <div class="w-1/2">
-            <n-h2>Sensor 1 Pressure</n-h2>
-            <!--        <pre>{{ sensor1Data }}</pre>-->
-            <RealTimeChart
-                :data="sensor1AccelChartData"
-                :title="'Sensor 1 Acceleration'"
-                dataKey="value"
-            />
-          </div>
-          <div class="w-1/2">
-            <n-h2>Sensor 2 Acceleration</n-h2>
-            <!--        <pre>{{ sensor2Data }}</pre>-->
-            <RealTimeChart
-                :data="sensor2AccelChartData"
-                :title="'Sensor 2 Acceleration'"
-                dataKey="value"
-            />
-          </div>
-        </div></div>
-    </div>
+    <div class="basis-1/2 ">
+      <n-button @click="exportToCSV" class="mt-4 p-2 bg-blue-500 text-white rounded">Download CSV</n-button>
+      <div>
+        <RealtimePressureChart
+            :data="multiLineChartData"
+            :title="'Foot Pressure Data'"
+            :series="['Sesamoid', 'Base', 'Calcaneus', 'Head']"
+            :keys="['sesamoid', 'base', 'calcaneus', 'head']"
+        />
+      </div></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import footImageSrc from '@/assets/foot.jpg';
 import PageHeader from "@/components/PageHeader.vue";
-import RealTimeChart from "@/components/RealTimeChart.vue";
+import RealtimePressureChart from "@/components/RealtimePressureChart.vue";
 import mqtt from 'mqtt';
 
-const sensor1Data = ref('');
+const multiLineChartData = ref([]);
+const csvData = ref([]);
+const MAX_DATA_POINTS = 50;
 
-const ws = ref(null);
+const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
+
 const sesamoid = ref(0);
 const base = ref(0);
 const calcaneus = ref(0);
@@ -49,106 +38,102 @@ const head = ref(0);
 const footImage = new Image();
 footImage.src = footImageSrc;
 
-// Function to determine color based on pressure value
 const getColorForPressure = (pressure) => {
-  // Normalize negative values to 0
   const normalizedPressure = Math.max(0, pressure);
-
-  if (normalizedPressure <= 47.69) {
-    return '#4CAF50'; // Green for low weight
-  } else if (normalizedPressure > 47.69 && normalizedPressure < 48) {
-    return '#FF9800'; // Orange for medium weight
-  } else {
-    return '#E53935'; // Red for high weight
-  }
+  return normalizedPressure <= 47.69
+      ? '#4CAF50'
+      : normalizedPressure < 48
+          ? '#FF9800'
+          : '#E53935';
 };
 
-// Function to calculate circle radius based on pressure
 const getCircleRadius = (pressure) => {
-  const MIN_RADIUS = 10; // Minimum radius in pixels
-  const SCALE_FACTOR = 0.5; // Adjusted scale factor for the new range of values
-
-  // Normalize negative values to 0
-  const normalizedPressure = Math.max(0, pressure);
-
-  // Calculate radius with minimum value
-  return Math.max(MIN_RADIUS, normalizedPressure * SCALE_FACTOR);
+  const MIN_RADIUS = 10;
+  const SCALE_FACTOR = 0.5;
+  return Math.max(MIN_RADIUS, Math.max(0, pressure) * SCALE_FACTOR);
 };
 
 const drawFoot = () => {
   const canvas = document.getElementById('footCanvas');
   const ctx = canvas.getContext('2d');
-
-  // Clear the canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (footImage.complete) ctx.drawImage(footImage, 0, 0, canvas.width, canvas.height);
 
-  // Draw the foot image
-  if (footImage.complete) {
-    ctx.drawImage(footImage, 0, 0, canvas.width, canvas.height);
-  } else {
-    console.error('Foot image not loaded properly.');
-  }
-
-  // Function to draw a pressure point
   const drawPressurePoint = (x, y, pressure) => {
-    const radius = getCircleRadius(pressure);
     ctx.fillStyle = getColorForPressure(pressure);
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.arc(x, y, getCircleRadius(pressure), 0, 2 * Math.PI);
     ctx.fill();
-
-    // Add pressure value text
     ctx.fillStyle = 'black';
     ctx.font = '12px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(pressure.toFixed(1), x, y + radius + 15);
+    ctx.fillText(pressure.toFixed(1), x, y + 25);
   };
 
-  // Mirror function for left foot
   const mirrorX = (x) => canvas.width - x;
-
-  // Right foot pressure points
-  const pressurePoints = [
-    { x: 265, y: 50, pressure: sesamoid.value }, // Sesamoid
-    { x: 265, y: 150, pressure: head.value }, // Head
-    { x: 340, y: 250, pressure: base.value }, // Base
-    { x: 280, y: 460, pressure: calcaneus.value } // Calcaneus
+  const points = [
+    { x: 265, y: 50, pressure: sesamoid.value },
+    { x: 265, y: 150, pressure: head.value },
+    { x: 340, y: 250, pressure: base.value },
+    { x: 280, y: 460, pressure: calcaneus.value }
   ];
-
-  // Draw pressure points for both feet
-  pressurePoints.forEach(point => {
-    // Right foot
-    drawPressurePoint(point.x, point.y, point.pressure);
-    // Left foot (mirrored)
-    drawPressurePoint(mirrorX(point.x), point.y, point.pressure);
+  points.forEach(p => {
+    drawPressurePoint(p.x, p.y, p.pressure);
+    drawPressurePoint(mirrorX(p.x), p.y, p.pressure);
   });
 };
 
-onMounted(() => {
-  // Establish WebSocket connection
-  ws.value = new WebSocket('ws://192.168.43.176:81');
-
-  ws.value.onmessage = (event) => {
-    console.log('Received data:', event.data);
-    const values = event.data.split(',');
-
-    // Parse values and handle potential parsing errors
-    sesamoid.value = parseFloat(values[0]) || 0;
-    base.value = parseFloat(values[1]) || 0;
-    calcaneus.value = parseFloat(values[2]) || 0;
-    head.value = parseFloat(values[3]) || 0;
-
-    drawFoot();
+const addMultiLineDataPoint = () => {
+  const currentTime = new Date().toLocaleTimeString();
+  const newData = {
+    time: currentTime,
+    sesamoid: sesamoid.value,
+    base: base.value,
+    calcaneus: calcaneus.value,
+    head: head.value,
   };
+  multiLineChartData.value.push(newData);
+  csvData.value.push([currentTime, sesamoid.value, base.value, calcaneus.value, head.value]);
 
-  // Setup canvas
+  if (multiLineChartData.value.length > MAX_DATA_POINTS) multiLineChartData.value.shift();
+};
+
+const exportToCSV = () => {
+  const headers = ['Time', 'Sesamoid', 'Base', 'Calcaneus', 'Head'];
+  const rows = [headers, ...csvData.value];
+  const csvContent = rows.map(e => e.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'foot_pressure_data.csv';
+  link.click();
+};
+
+onMounted(() => {
   const canvas = document.getElementById('footCanvas');
-  canvas.width = 400;
-  canvas.height = 510;
+  if (canvas) {
+    canvas.width = 400;
+    canvas.height = 525;
+  }
 
-  // Draw initial state when image loads
-  footImage.onload = drawFoot;
-  footImage.onerror = () => console.error('Failed to load foot image.');
+  client.on("connect", () => {
+    client.subscribe("esp32/fsr", (err) => {
+      if (err) console.error("Failed to subscribe to topic", err);
+    });
+  });
+
+  client.on("message", (topic, message) => {
+    if (topic === "esp32/fsr") {
+      const values = message.toString().split(',').map(parseFloat);
+      [sesamoid.value, base.value, calcaneus.value, head.value] = values;
+      addMultiLineDataPoint();
+      drawFoot();
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (client) client.end();
 });
 </script>
 

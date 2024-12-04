@@ -1,12 +1,11 @@
 <template>
   <PageHeader title="Fall Detection Analysis"/>
   <div>
-<!--    <h1>MPU6050 Sensor Data</h1>-->
+    <n-button @click="downloadCSV">Download CSV</n-button>
     <div class="flex space-x-4">
       <!-- Acceleration Charts -->
       <div class="w-1/2">
         <n-h2>Sensor 1 Acceleration</n-h2>
-<!--        <pre>{{ sensor1Data }}</pre>-->
         <RealTimeChart
             :data="sensor1AccelChartData"
             :title="'Sensor 1 Acceleration'"
@@ -15,7 +14,6 @@
       </div>
       <div class="w-1/2">
         <n-h2>Sensor 2 Acceleration</n-h2>
-<!--        <pre>{{ sensor2Data }}</pre>-->
         <RealTimeChart
             :data="sensor2AccelChartData"
             :title="'Sensor 2 Acceleration'"
@@ -43,16 +41,6 @@
       </div>
     </div>
   </div>
-  <div class="flex justify-items-center flex-row mt-8">
-    <div v-for="(chart, index) in thingspeakCharts" :key="index">
-      <iframe
-          width="450"
-          height="260"
-          style="border: 1px solid #cccccc;"
-          :src="chart"
-      ></iframe>
-    </div>
-  </div>
 </template>
 
 <script setup>
@@ -64,13 +52,6 @@ import RealTimeChart from '@/components/RealTimeChart.vue';
 // Maximum number of data points to display
 const MAX_DATA_POINTS = 100;
 
-// Thingspeak chart URLs
-const thingspeakCharts = [
-  "https://thingspeak.com/channels/2627027/charts/1?bgcolor=%23ffffff&color=%23d62020&days=1&dynamic=true&results=60&type=line",
-  "https://thingspeak.com/channels/2627027/charts/2?bgcolor=%23ffffff&color=%23d62020&days=1&dynamic=true&results=60&type=line",
-  "https://thingspeak.com/channels/2627027/charts/3?days=1&dynamic=&results=60&type="
-];
-
 // Refs for sensor data and chart data
 const sensor1Data = ref('');
 const sensor2Data = ref('');
@@ -79,29 +60,59 @@ const sensor2AccelChartData = ref({ x: [], y: [], z: [] });
 const sensor1GyroChartData = ref({ x: [], y: [], z: [] });
 const sensor2GyroChartData = ref({ x: [], y: [], z: [] });
 
+// CSV data
+const csvData = ref([['Timestamp', 'Sensor', 'Accel X', 'Accel Y', 'Accel Z', 'Gyro X', 'Gyro Y', 'Gyro Z']]);
+
 // MQTT client setup
 const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 
-// Function to add new data point to chart
-const addDataPoint = (chartData, newValues) => {
+// Function to add new data point to chart and CSV
+const addDataPoint = (chartData, newValues, sensor, dataType) => {
   const currentTime = new Date().toLocaleTimeString();
 
-  const newPoint = {
-    time: currentTime,
-    x: parseFloat(newValues.x),
-    y: parseFloat(newValues.y),
-    z: parseFloat(newValues.z),
+  // Extract values and validate
+  const values = {
+    x: parseFloat(newValues.x) || 0,
+    y: parseFloat(newValues.y) || 0,
+    z: parseFloat(newValues.z) || 0,
   };
 
-  // Add new data points for each axis
-  chartData.x.push({ time: newPoint.time, value: newPoint.x });
-  chartData.y.push({ time: newPoint.time, value: newPoint.y });
-  chartData.z.push({ time: newPoint.time, value: newPoint.z });
+  // Add to chart data
+  chartData.x.push({ time: currentTime, value: values.x });
+  chartData.y.push({ time: currentTime, value: values.y });
+  chartData.z.push({ time: currentTime, value: values.z });
 
   // Trim data to MAX_DATA_POINTS
   if (chartData.x.length > MAX_DATA_POINTS) chartData.x.shift();
   if (chartData.y.length > MAX_DATA_POINTS) chartData.y.shift();
   if (chartData.z.length > MAX_DATA_POINTS) chartData.z.shift();
+
+  // Set prefix for data type in CSV (Accel or Gyro)
+  const csvPrefix = dataType === 'accel' ? 'Accel' : 'Gyro';
+
+  // Add to CSV data
+  csvData.value.push([
+    currentTime,
+    sensor,
+    values.x, // X value
+    values.y, // Y value
+    values.z, // Z value
+    csvPrefix
+  ]);
+};
+
+// Function to download CSV
+const downloadCSV = () => {
+  const csvContent = csvData.value.map(row => row.join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'sensor_data.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 onMounted(() => {
@@ -132,12 +143,14 @@ onMounted(() => {
 
     if (topic === "esp32/mpu1") {
       sensor1Data.value = data;
-      addDataPoint(sensor1AccelChartData.value, data.accel); // Add acceleration data
-      addDataPoint(sensor1GyroChartData.value, data.gyro); // Add gyroscope data
+      console.log(data);
+      addDataPoint(sensor1AccelChartData.value, data.accel, 'Sensor 1', 'accel'); // Add acceleration data
+      addDataPoint(sensor1GyroChartData.value, data.gyro, 'Sensor 1', 'gyro'); // Add gyroscope data
     } else if (topic === "esp32/mpu2") {
       sensor2Data.value = data;
-      addDataPoint(sensor2AccelChartData.value, data.accel); // Add acceleration data
-      addDataPoint(sensor2GyroChartData.value, data.gyro); // Add gyroscope data
+      console.log(data);
+      addDataPoint(sensor2AccelChartData.value, data.accel, 'Sensor 2', 'accel'); // Add acceleration data
+      addDataPoint(sensor2GyroChartData.value, data.gyro, 'Sensor 2', 'gyro'); // Add gyroscope data
     }
   });
 });
