@@ -1,29 +1,49 @@
 <template>
   <PageHeader title="Fall Detection Analysis"/>
   <div>
-    <h1>MPU6050 Sensor Data</h1>
+<!--    <h1>MPU6050 Sensor Data</h1>-->
     <div class="flex space-x-4">
+      <!-- Acceleration Charts -->
       <div class="w-1/2">
-        <h2>Sensor 1 Real-Time Graph</h2>
-        <pre>{{ sensor1Data }}</pre>
+        <n-h2>Sensor 1 Acceleration</n-h2>
+<!--        <pre>{{ sensor1Data }}</pre>-->
         <RealTimeChart
-            :data="sensor1ChartData"
-            :title="'Sensor 1 Data'"
+            :data="sensor1AccelChartData"
+            :title="'Sensor 1 Acceleration'"
             dataKey="value"
         />
       </div>
       <div class="w-1/2">
-        <h2>Sensor 2 Real-Time Graph</h2>
-        <pre>{{ sensor2Data }}</pre>
+        <n-h2>Sensor 2 Acceleration</n-h2>
+<!--        <pre>{{ sensor2Data }}</pre>-->
         <RealTimeChart
-            :data="sensor2ChartData"
-            :title="'Sensor 2 Data'"
+            :data="sensor2AccelChartData"
+            :title="'Sensor 2 Acceleration'"
+            dataKey="value"
+        />
+      </div>
+    </div>
+    <div class="flex space-x-4 mt-8">
+      <!-- Gyroscope Charts -->
+      <div class="w-1/2">
+        <n-h2>Sensor 1 Gyroscope</n-h2>
+        <RealTimeChart
+            :data="sensor1GyroChartData"
+            :title="'Sensor 1 Gyroscope'"
+            dataKey="value"
+        />
+      </div>
+      <div class="w-1/2">
+        <n-h2>Sensor 2 Gyroscope</n-h2>
+        <RealTimeChart
+            :data="sensor2GyroChartData"
+            :title="'Sensor 2 Gyroscope'"
             dataKey="value"
         />
       </div>
     </div>
   </div>
-  <div class="flex justify-items-center flex-row ...">
+  <div class="flex justify-items-center flex-row mt-8">
     <div v-for="(chart, index) in thingspeakCharts" :key="index">
       <iframe
           width="450"
@@ -34,6 +54,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import mqtt from 'mqtt';
@@ -41,7 +62,7 @@ import PageHeader from "@/components/PageHeader.vue";
 import RealTimeChart from '@/components/RealTimeChart.vue';
 
 // Maximum number of data points to display
-const MAX_DATA_POINTS = 50;
+const MAX_DATA_POINTS = 100;
 
 // Thingspeak chart URLs
 const thingspeakCharts = [
@@ -53,16 +74,10 @@ const thingspeakCharts = [
 // Refs for sensor data and chart data
 const sensor1Data = ref('');
 const sensor2Data = ref('');
-const sensor1ChartData = ref({
-  x: [],
-  y: [],
-  z: [],
-});
-const sensor2ChartData = ref({
-  x: [],
-  y: [],
-  z: [],
-});
+const sensor1AccelChartData = ref({ x: [], y: [], z: [] });
+const sensor2AccelChartData = ref({ x: [], y: [], z: [] });
+const sensor1GyroChartData = ref({ x: [], y: [], z: [] });
+const sensor2GyroChartData = ref({ x: [], y: [], z: [] });
 
 // MQTT client setup
 const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
@@ -117,10 +132,12 @@ onMounted(() => {
 
     if (topic === "esp32/mpu1") {
       sensor1Data.value = data;
-      addDataPoint(sensor1ChartData.value, data.accel);
+      addDataPoint(sensor1AccelChartData.value, data.accel); // Add acceleration data
+      addDataPoint(sensor1GyroChartData.value, data.gyro); // Add gyroscope data
     } else if (topic === "esp32/mpu2") {
       sensor2Data.value = data;
-      addDataPoint(sensor2ChartData.value, data.accel);
+      addDataPoint(sensor2AccelChartData.value, data.accel); // Add acceleration data
+      addDataPoint(sensor2GyroChartData.value, data.gyro); // Add gyroscope data
     }
   });
 });
@@ -135,7 +152,7 @@ onUnmounted(() => {
 
 <style scoped>
 .chart-container {
-  height: 300px;
+  height: 250px;
   width: 100%;
 }
 </style>

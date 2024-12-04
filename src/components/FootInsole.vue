@@ -6,9 +6,27 @@
     </div>
     <div class="basis-1/2">
       <div class="flex flex-col ...">
-        <div class="m-2"><iframe width="440" height="240" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/1?bgcolor=%23ffffff&color=%23d62020&days=1&dynamic=true&results=60&type=line"></iframe></div>
-        <div class="m-2"><iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2627027/charts/3?days=1&dynamic=&results=60&type="></iframe></div>
-      </div>
+        <div class="flex space-x-4">
+          <!-- Acceleration Charts -->
+          <div class="w-1/2">
+            <n-h2>Sensor 1 Pressure</n-h2>
+            <!--        <pre>{{ sensor1Data }}</pre>-->
+            <RealTimeChart
+                :data="sensor1AccelChartData"
+                :title="'Sensor 1 Acceleration'"
+                dataKey="value"
+            />
+          </div>
+          <div class="w-1/2">
+            <n-h2>Sensor 2 Acceleration</n-h2>
+            <!--        <pre>{{ sensor2Data }}</pre>-->
+            <RealTimeChart
+                :data="sensor2AccelChartData"
+                :title="'Sensor 2 Acceleration'"
+                dataKey="value"
+            />
+          </div>
+        </div></div>
     </div>
   </div>
 </template>
@@ -17,6 +35,10 @@
 import { ref, onMounted } from 'vue';
 import footImageSrc from '@/assets/foot.jpg';
 import PageHeader from "@/components/PageHeader.vue";
+import RealTimeChart from "@/components/RealTimeChart.vue";
+import mqtt from 'mqtt';
+
+const sensor1Data = ref('');
 
 const ws = ref(null);
 const sesamoid = ref(0);
