@@ -1,7 +1,9 @@
 <template>
   <PageHeader title="Fall Detection Analysis"/>
   <div>
-    <n-button @click="downloadCSV">Download CSV</n-button>
+    <div class="flex justify-end mx-4">
+      <n-button class="mt-4 p-2 bg-blue-500 text-white rounded" @click="downloadCSV">Download CSV</n-button>
+    </div>
     <div class="flex space-x-4">
       <!-- Acceleration Charts -->
       <div class="w-1/2">

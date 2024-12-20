@@ -5,15 +5,18 @@
       <canvas class="m-1" id="footCanvas"></canvas>
     </div>
     <div class="basis-1/2 ">
+      <div class="flex justify-end mx-4">
       <n-button @click="exportToCSV" class="mt-4 p-2 bg-blue-500 text-white rounded">Download CSV</n-button>
-      <div>
+      </div>
+      <div class="mx-10">
         <RealtimePressureChart
             :data="multiLineChartData"
             :title="'Foot Pressure Data'"
             :series="['Sesamoid', 'Base', 'Calcaneus', 'Head']"
             :keys="['sesamoid', 'base', 'calcaneus', 'head']"
         />
-      </div></div>
+      </div>
+    </div>
   </div>
 </template>
 
