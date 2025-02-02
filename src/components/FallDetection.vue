@@ -1,8 +1,14 @@
 <template>
   <PageHeader title="Fall Detection Analysis"/>
   <div>
-    <div class="flex justify-end mx-4">
-      <n-button class="mt-4 p-2 bg-blue-500 text-white rounded" @click="downloadCSV">Download CSV</n-button>
+    <div class="flex justify-between items-center mx-4">
+      <n-tag round :bordered="false" :type="connectionStatus ? 'success' : 'error'">
+        <template #icon>
+          <n-icon :component="connectionStatus ? CheckmarkCircle : CloseCircle" />
+        </template>
+        {{ connectionStatus ? 'Connected' : 'Disconnected' }}
+      </n-tag>
+      <n-button class="p-2 bg-blue-500 text-white rounded" @click="downloadCSV">Download CSV</n-button>
     </div>
     <div class="flex space-x-4">
       <!-- Acceleration Charts -->
@@ -50,6 +56,8 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import mqtt from 'mqtt';
 import PageHeader from "@/components/PageHeader.vue";
 import RealTimeChart from '@/components/RealTimeChart.vue';
+import { CheckmarkCircle, CloseCircle } from "@vicons/ionicons5";
+
 
 // Maximum number of data points to display
 const MAX_DATA_POINTS = 100;
@@ -61,6 +69,8 @@ const sensor1AccelChartData = ref({ x: [], y: [], z: [] });
 const sensor2AccelChartData = ref({ x: [], y: [], z: [] });
 const sensor1GyroChartData = ref({ x: [], y: [], z: [] });
 const sensor2GyroChartData = ref({ x: [], y: [], z: [] });
+
+const connectionStatus = ref(false);
 
 // CSV data
 const csvData = ref([['Timestamp', 'Sensor', 'Accel X', 'Accel Y', 'Accel Z', 'Gyro X', 'Gyro Y', 'Gyro Z']]);
@@ -154,6 +164,7 @@ onMounted(() => {
       addDataPoint(sensor2AccelChartData.value, data.accel, 'Sensor 2', 'accel'); // Add acceleration data
       addDataPoint(sensor2GyroChartData.value, data.gyro, 'Sensor 2', 'gyro'); // Add gyroscope data
     }
+    connectionStatus.value = sensor1Data.value || sensor2Data.value;
   });
 });
 

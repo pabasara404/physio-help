@@ -5,8 +5,14 @@
       <canvas class="m-1" id="footCanvas"></canvas>
     </div>
     <div class="basis-1/2 ">
-      <div class="flex justify-end mx-4">
-      <n-button @click="exportToCSV" class="mt-4 p-2 bg-blue-500 text-white rounded">Download CSV</n-button>
+      <div class="flex justify-between items-center mx-4">
+        <n-tag round :bordered="false" :type="connectionStatus ? 'success' : 'error'">
+          <template #icon>
+            <n-icon :component="connectionStatus ? CheckmarkCircle : CloseCircle" />
+          </template>
+          {{ connectionStatus ? 'Connected' : 'Disconnected' }}
+        </n-tag>
+        <n-button class="p-2 bg-blue-500 text-white rounded" @click="exportToCSV">Download CSV</n-button>
       </div>
       <div class="mx-10">
         <RealtimePressureChart
@@ -26,11 +32,12 @@ import footImageSrc from '@/assets/foot.jpg';
 import PageHeader from "@/components/PageHeader.vue";
 import RealtimePressureChart from "@/components/RealtimePressureChart.vue";
 import mqtt from 'mqtt';
+import { CheckmarkCircle, CloseCircle } from "@vicons/ionicons5";
 
+const connectionStatus = ref(false);
 const multiLineChartData = ref([]);
 const csvData = ref([]);
 const MAX_DATA_POINTS = 50;
-
 const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
 
 const sesamoid = ref(0);
@@ -129,6 +136,7 @@ onMounted(() => {
     if (topic === "esp32/fsr") {
       const values = message.toString().split(',').map(parseFloat);
       [sesamoid.value, base.value, calcaneus.value, head.value] = values;
+      connectionStatus.value = true;
       addMultiLineDataPoint();
       drawFoot();
     }
