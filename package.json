@@ -12,6 +12,7 @@
   "dependencies": {
     "@vitejs/plugin-vue-jsx": "^4.1.1",
     "@vue/reactivity": "^3.5.13",
+    "axios": "^1.7.9",
     "chart.js": "^4.4.7",
     "mqtt": "^5.10.3",
     "recharts": "^2.14.1",

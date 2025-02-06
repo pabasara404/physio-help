@@ -174,6 +174,34 @@ onUnmounted(() => {
     client.end();
   }
 });
+
+import axios from 'axios';
+
+// Reactive variables to store sensor data
+const sensor1StoredData = ref([]);
+const sensor2StoredData = ref([]);
+
+// Fetch stored data from Flask backend
+const fetchSensorData = async () => {
+  try {
+    const sensor1Response = await axios.get('http://localhost:5000/get_data/sensor1');
+    sensor1StoredData.value = sensor1Response.data;
+
+    const sensor2Response = await axios.get('http://localhost:5000/get_data/sensor2');
+    sensor2StoredData.value = sensor2Response.data;
+
+    console.log("Sensor 1 Data:", sensor1StoredData.value);
+    console.log("Sensor 2 Data:", sensor2StoredData.value);
+  } catch (error) {
+    console.error("Error fetching stored data:", error);
+  }
+};
+
+// Call the function when the component mounts
+onMounted(() => {
+  fetchSensorData();
+});
+
 </script>
 
 <style scoped>
